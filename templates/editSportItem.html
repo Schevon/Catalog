@@ -1,0 +1,26 @@
+
+{% extends "layout.html" %}
+{% block body %}
+
+<html>
+	<head>
+		<script type="text/javascript"></script>
+		<title>Edit Sport Item</title> 
+	</head>
+
+	<body>
+	    <div class="container">
+			<h1> Edit Menu Item </h1>
+			<form action="#" method = 'post'>
+				<strong><p>Name:</p></strong>
+		 		<input type ='text' size='30' name='name' placeholder = '{{item.name }}' class="form-control">
+				<p>Description:</p>
+				<input type ='text' size='30' name='description' placeholder = '{{item.description}}' class="form-control" >
+				<br></br>
+				<input type='submit' value='Edit' class="btn btn-default">
+			</form>
+		</div>
+	</body>
+</html>
+{% endblock %}
+

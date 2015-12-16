@@ -1,0 +1,51 @@
+
+{% extends "layout.html" %}
+{% block body %}
+
+<html>
+	<head>
+		<script type="text/javascript"></script>
+		<title> Public Show Sport Items </title>
+	</head>
+	<body>
+
+ 		<div class="container">
+			<h1>{{ sportcategory.name }}</h1>
+<!-- 	{% if items !=[] %}
+
+		{% for i in items %}
+			<ul class="list-group">
+  				<li class="list-group-item list-group-item-info"><p>{{i.id}}</p></li>
+  				<li class="list-group-item list-group-item-info"><p>{{i.name}}</p></li>
+  				<li class="list-group-item list-group-item-info"><p>{{i.description}}</p></li>
+			<br><br>
+		{% endfor %}
+
+{% endif %}
+ -->
+<div class="bs-example">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID </th>
+                <th>Sport Item</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        {% if items !=[] %}
+            {% for i in items %}
+        <tbody>
+            <tr>
+            	<td>{{i.id}}</td>
+				<td>{{i.name}}</td>
+                <td>{{i.description}}</td>
+             </tr>
+        </tbody>
+        {% endfor %}
+	{% endif %}
+    </table>
+</div>
+	</body>
+</div>
+</html>
+{% endblock %}

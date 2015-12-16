@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block body %}
+<html>
+	<head>
+		<script type="text/javascript"></script>
+		<title> Show Sport Items </title>
+	</head>
+
+	<body>
+		<h1>{{ sportcategory.name }}</h1>
+		{% if creator %}
+     	<a href="{{url_for('newMenuItem', sportCategory_id = sportcategory.id )}}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"></span> Create a New Item</a>
+     {% endif %}
+		</br></br>	
+    {% if items !=[] %}
+    
+		{% for i in items %}
+			<ul class="list-group">
+  				<li class="list-group-item list-group-item-info"><p>{{i.id}}</p></li>
+  				<li class="list-group-item list-group-item-info"><p>{{i.name}}</p></li>
+  				<li class="list-group-item list-group-item-info"><p>{{i.description}}</p></li>
+			<br><br>
+
+			<a href="{{url_for('editMenuItem', sportCategory_id = sportcategory.id, menu_id=i.id ) }}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"></span> Edit This Item</a>
+
+			<a href="{{url_for('deleteMenuItem', sportCategory_id = sportcategory.id, menu_id=i.id ) }}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-trash"></span> Delete  This Item</a>
+			
+			<a href="{{url_for('sportItemJSON', sportCategory_id = sportcategory.id, menu_id=i.id ) }}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-barcode"></span>  Jsonify This Item  Item</a>
+
+			<br><br>
+		{% endfor %}
+
+	{% endif %}
+		</div>
+	</body>
+</html>
+{% endblock %}
