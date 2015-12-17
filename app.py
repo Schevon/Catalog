@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for,flash
+from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import flash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, User, SportCategory,SportingItem
+from database_setup import Base, User, SportCategory, SportingItem
 
 from flask import session as login_session
 import random
@@ -26,14 +27,16 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    return render_template('login.html',STATE=state)
-     #return "The current session state is %s" % login_session['state']
+    return render_template('login.html', STATE=state)
+    # return "The current session state is %s" % login_session['state']
+
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -57,20 +60,16 @@ def fbconnect():
     userinfo_url = "https://graph.facebook.com/v2.4/me"
     # strip expire tag from access token
     token = result.split("&")[0]
-
-
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    print "url sent for API access:%s"% url
+    print "url sent for API access: %s " % url
     print "API JSON result: %s" % result
     data = json.loads(result)
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
-
-    # The token must be stored in the login_session in order to properly logout, let's strip out the information before the equals sign in our token
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
@@ -96,7 +95,6 @@ def fbconnect():
     output += '<img src="'
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
     flash("Now logged in as %s" % login_session['username'])
     return output
 
@@ -106,7 +104,7 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -200,7 +198,6 @@ def gconnect():
     return output
 
 
-    
 @app.route('/gdisconnect')
 def gdisconnect():
         # Only disconnect a connected user.
@@ -234,7 +231,7 @@ def gdisconnect():
         print 'gdisconnect did not execute'
         return response
 
-# Disconnect based on provider
+
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
@@ -257,6 +254,8 @@ def disconnect():
         flash("You were not logged in")
         return redirect(url_for('showSportCategory'))
 
+
+# helper functions
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
@@ -278,36 +277,37 @@ def getUserID(email):
     except:
         return None
 
+
 # Show all Sports
 @app.route('/')
 @app.route('/sportcategory/')
 def showSportCategory():
-    sportcategory= session.query(SportCategory).all()
+    sportcategory = session.query(SportCategory).all()
     if 'username' not in login_session:
-    	return render_template('publicsportscategory.html',sportcategory=sportcategory)
+        return render_template('publicsportscategory.html', sportcategory=sportcategory)
     else:
-    # return "This page will show all SportsCategory"
-    	return render_template('sportscategory.html', sportcategory=sportcategory)
+        # return "This page will show all SportsCategory"
+        return render_template('sportscategory.html', sportcategory=sportcategory)
 
 
-# Create a new restaurant
+# Create a new category
 @app.route('/sportcategory/new/', methods=['GET', 'POST'])
 def newSportCategory():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-    	print login_session['user_id']
+        print login_session['user_id']
         newSportCategory = SportCategory(
-            name=request.form['name'],userId=login_session['user_id'])
+            name=request.form['name'], userId=login_session['user_id'])
         session.add(newSportCategory)
         session.commit()
+        flash(" Sport Category created.")
         return redirect(url_for('showSportCategory'))
     else:
         return render_template('newsportscategory.html')
 
-# Edit a restaurant
 
-
+# Edit a sport category
 @app.route('/sportcategory/<int:sportCategory_id>/edit/', methods=['GET', 'POST'])
 def editSportCategory(sportCategory_id):
     editedSportCategory = session.query(
@@ -326,9 +326,8 @@ def editSportCategory(sportCategory_id):
         return render_template(
             'editSportCategory.html', sportcategory=editedSportCategory)
 
-    # return 'This page will be for editing restaurant %s' % restaurant_id
 
-# Delete a restaurant
+# Delete a sportCategory
 @app.route('/sportcategory/<int:sportCategory_id>/delete/', methods=['GET', 'POST'])
 def deleteSportCategory(sportCategory_id):
     sportCategoryToDelete = session.query(
@@ -345,9 +344,10 @@ def deleteSportCategory(sportCategory_id):
     else:
         return render_template(
             'deleteSportCategory.html', sportcategory=sportCategoryToDelete)
-    # return 'This page will be for deleting restaurant %s' % restaurant_id
+    # return 'This page will be for deleting sportCategory'
 
-# Show a restaurant menu
+
+# Show sporting item
 @app.route('/sportcategory/<int:sportCategory_id>/')
 @app.route('/sportcategory/<int:sportCategory_id>/menu/')
 def showMenu(sportCategory_id):
@@ -356,17 +356,12 @@ def showMenu(sportCategory_id):
     items = session.query(SportingItem).filter_by(
         sport_cat_id=sportCategory_id).all()
     if 'username' not in login_session or creator.userId != login_session['user_id']:
-    	return render_template('publicmenuitem.html', items=items,sportcategory=sportcategory,creator=creator)
+        return render_template('publicmenuitem.html', items=items, sportcategory=sportcategory, creator=creator)
     else:
-    	return render_template('menuItem.html', items=items, sportcategory=sportcategory,creator=creator)
-    # return 'This page is the menu for restaurant %s' % restaurant_id'''
-    #return render_template('menuItem.html', items=items, sportcategory=sportcategory)
-    #return render_template('menuItem.html', items=items, sportcategory=sportcategory,creator=creator)
-    #return render_template('menuItem.html', items=items, sportcategory=sportcategory)
-
-# Create a new menu item
+        return render_template('menuItem.html', items=items, sportcategory=sportcategory, creator=creator)
 
 
+# Create a new sporting item
 @app.route(
     '/sportcategory/<int:sportCategory_id>/menu/new/', methods=['GET', 'POST'])
 def newMenuItem(sportCategory_id):
@@ -380,19 +375,17 @@ def newMenuItem(sportCategory_id):
         print request.form['description']
         print sportCategory_id
         print sportcategory.userId
-        newItem = SportingItem(name=request.form['name'],sport_cat_id=sportCategory_id,userId=sportcategory.userId,
-                              description=request.form['description'])
+        newItem = SportingItem(name=request.form['name'], sport_cat_id=sportCategory_id, userId=sportcategory.userId,
+                               description=request.form['description'])
         session.add(newItem)
         session.commit()
-
+        flash(" Sporting Item created.")
         return redirect(url_for('showMenu', sportCategory_id=sportCategory_id))
     else:
         return render_template('newmenuitem.html', sportCategory_id=sportCategory_id)
 
-    #return render_template('newMenuItem.html', restaurant=restaurant)
-    # return 'This page is for making a new menu item for restaurant %s'
-    # %restaurant_id
 
+# edit a sporting item
 @app.route('/sportcategory/<int:sportCategory_id>/menu/<int:menu_id>/edit',
            methods=['GET', 'POST'])
 def editMenuItem(sportCategory_id, menu_id):
@@ -408,17 +401,15 @@ def editMenuItem(sportCategory_id, menu_id):
             editedItem.description = request.form['description']
         session.add(editedItem)
         session.commit()
+        flash(" Sporting Item Edited.")
         return redirect(url_for('showMenu', sportCategory_id=sportCategory_id))
     else:
 
         return render_template(
             'editSportItem.html', sportCategory_id=sportCategory_id, menu_id=menu_id, item=editedItem)
 
-    # return 'This page is for editing menu item %s' % menu_id
 
-# Delete a menu item
-
-
+# Delete a sporting item
 @app.route('/sportcategory/<int:sportCategory_id>/menu/<int:menu_id>/delete',
            methods=['GET', 'POST'])
 def deleteMenuItem(sportCategory_id, menu_id):
@@ -430,21 +421,27 @@ def deleteMenuItem(sportCategory_id, menu_id):
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
+        flash(" Sporting Item deleted.")
         return redirect(url_for('showMenu', sportCategory_id=sportCategory_id))
     else:
-        return render_template('deleteSportItem.html', item=itemToDelete)
-    # return "This page is for deleting menu item %s" % menu_id
+        return render_template('deleteSportItem.html', item=itemToDelete, sportCategory_id=sportCategory_id)
+    # return "This page is for deleting sporting item item %s" % menu_id
+
+
+# jsonify sport category
 @app.route('/sportcategory/JSON')
 def sportcategoryJSON():
     sportcategory = session.query(SportCategory).all()
     return jsonify(sportcategory=[s.serialize for s in sportcategory])
-    
+
+
 @app.route('/sportcategory/<int:sportCategory_id>/menu/JSON')
 def restaurantMenuJSON(sportCategory_id):
     sportcategory = session.query(SportCategory).filter_by(id=sportCategory_id).one()
     items = session.query(SportingItem).filter_by(
         sport_cat_id=sportCategory_id).all()
     return jsonify(SportingItem=[i.serialize for i in items])
+
 
 @app.route('/sportcategory/<int:sportCategory_id>/menu/<int:menu_id>/JSON')
 def sportItemJSON(sportCategory_id, menu_id):

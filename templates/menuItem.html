@@ -7,6 +7,17 @@
 	</head>
 
 	<body>
+		{% with messages = get_flashed_messages() %}
+      		{% if messages %}
+          		<ul>
+        		{% for message in messages %}
+        		    <div class="alert alert-success">
+            			<strong> {{ message }} </strong>
+            		</div>
+       		    {% endfor %}
+        		</ul>
+        	{% endif %}
+    	{% endwith %}
 		<h1>{{ sportcategory.name }}</h1>
 		{% if creator %}
      	<a href="{{url_for('newMenuItem', sportCategory_id = sportcategory.id )}}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"></span> Create a New Item</a>

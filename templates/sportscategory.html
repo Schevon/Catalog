@@ -6,31 +6,29 @@
 		<title>Sports Category</title>
 	</head>
 	<body>
+  {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              <ul>
+            {% for message in messages %}
+                <div class="alert alert-success">
+                  <strong> {{ message }} </strong>
+                </div>
+              {% endfor %}
+            </ul>
+          {% endif %}
+      {% endwith %}
 	    <div>
 	    	<br></br>
 	    	<a href="{{url_for('newSportCategory')}}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"></span> Create a New Sport Category</a>
 			<a href="{{url_for('sportcategoryJSON')}}" class="btn btn-info btn-lg"><span class="glyphicon glyphicon-info-sign"></span> JSON All SportCategory</a>
 		<div/>
-
-		{% with messages = get_flashed_messages() %}
-      		{% if messages %}
-          		<ul>
-        		{% for message in messages %}
-        		    <div class="alert alert-success">
-            			<strong> {{ message }} </strong>
-            		</div>
-       		    {% endfor %}
-        		</ul>
-        	{% endif %}
-    	{% endwith %}
-
-		<br></br>
+  <br></br>
 		</ul>	
 	<div class="bs-example">
     <table class="table table-hover">
         <thead>
             <tr>
-              <th><h1>Sports<h1/></th>
+              <th><h1 class="text-left">Sports</h1></th>
   		</tr>
         </thead>
         {% for i in sportcategory %}
