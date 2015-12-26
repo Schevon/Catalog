@@ -7,11 +7,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 </head>
  <div class="container">
-  <h3 class="text-left">Sport Category Application</h3>
-  <ul class="nav nav-tabs">
+    <h3 class="text-left">Sport Category Application</h3>
+    <ul class="nav nav-tabs">
     <li><a href="{{url_for('showSportCategory')}}">Home</a></li>
     <li><a href="{{url_for('showLogin')}}"><span class="glyphicon glyphicon-log-on"></span> Log In </a></li>
     <li><a href="{{url_for('disconnect')}}"><span class="glyphicon glyphicon-log-off"></span> Log Off </a></li>
